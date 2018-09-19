@@ -1,8 +1,11 @@
 package test.pivotal.pal.trackerapi;
 
 import com.jayway.jsonpath.DocumentContext;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import io.pivotal.pal.tracker.PalTrackerApplication;
 import io.pivotal.pal.tracker.TimeEntry;
+import java.util.TimeZone;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -29,6 +33,17 @@ public class TimeEntryApiTest {
     private TestRestTemplate restTemplate;
 
     private TimeEntry timeEntry = new TimeEntry(123L, 456L, LocalDate.parse("2017-01-08"), 8);
+
+    @Before
+    public void setUp() throws Exception {
+        MysqlDataSource dataSource = new MysqlDataSource();
+        dataSource.setUrl(System.getenv("SPRING_DATASOURCE_URL"));
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.execute("TRUNCATE time_entries");
+
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
 
     @Test
     public void testCreate() throws Exception {
