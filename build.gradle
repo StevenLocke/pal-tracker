@@ -1,3 +1,5 @@
+import org.flywaydb.gradle.task.FlywayMigrateTask
+
 buildscript {
     ext {
         springBootVersion = '2.0.5.RELEASE'
@@ -10,6 +12,11 @@ buildscript {
     }
 }
 
+plugins {
+    id "org.flywaydb.flyway" version "4.2.0"
+    id 'org.jetbrains.kotlin.jvm' version '1.2.70'
+}
+
 apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
@@ -17,15 +24,43 @@ apply plugin: 'io.spring.dependency-management'
 repositories { mavenCentral() }
 
 dependencies {
+    compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile("mysql:mysql-connector-java:6.0.6")
     compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.1")
     testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
+def developmentDbUrl = "jdbc:mysql://localhost:3306/tracker_dev?user=tracker&useSSL=false&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false"
 bootRun.environment([
+        "SPRING_DATASOURCE_URL": developmentDbUrl,
         "WELCOME_MESSAGE": "hello",
 ])
 
+def testDbUrl = "jdbc:mysql://localhost:3306/tracker_test?user=tracker&useSSL=false&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false"
 test.environment([
+        "SPRING_DATASOURCE_URL": testDbUrl,
         "WELCOME_MESSAGE": "Hello from test",
 ])
+
+flyway {
+    url = developmentDbUrl
+    user = "tracker"
+    password = ""
+    locations = ["filesystem:databases/tracker/migrations"]
+}
+
+task testMigrate(type: FlywayMigrateTask) {
+    url = testDbUrl
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
