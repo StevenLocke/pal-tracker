@@ -2,7 +2,7 @@ import org.flywaydb.gradle.task.FlywayMigrateTask
 
 buildscript {
     ext {
-        springBootVersion = '2.0.5.RELEASE'
+        springBootVersion = '1.5.13.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -24,6 +24,7 @@ apply plugin: 'io.spring.dependency-management'
 repositories { mavenCentral() }
 
 dependencies {
+    compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-jdbc")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("mysql:mysql-connector-java:6.0.6")
@@ -34,12 +35,14 @@ dependencies {
 
 def developmentDbUrl = "jdbc:mysql://localhost:3306/tracker_dev?user=tracker&useSSL=false&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false"
 bootRun.environment([
+        "MANAGEMENT_SECURITY_ENABLED": false,
         "SPRING_DATASOURCE_URL": developmentDbUrl,
         "WELCOME_MESSAGE": "hello",
 ])
 
 def testDbUrl = "jdbc:mysql://localhost:3306/tracker_test?user=tracker&useSSL=false&useTimezone=true&serverTimezone=UTC&useLegacyDatetimeCode=false"
 test.environment([
+        "MANAGEMENT_SECURITY_ENABLED": false,
         "SPRING_DATASOURCE_URL": testDbUrl,
         "WELCOME_MESSAGE": "Hello from test",
 ])
@@ -63,4 +66,8 @@ compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+}
+
+springBoot {
+    buildInfo()
 }

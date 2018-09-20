@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.writer.DefaultCounterService;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,6 +27,11 @@ public class PalTrackerApplication {
     dataSource.setUrl(System.getenv("SPRING_DATASOURCE_URL"));
     return new JdbcTimeEntryRepository(dataSource);
   }
+
+//  @Bean
+//  CounterService counterService() {
+//    return new DefaultCounterService("");
+//  }
 
   @Bean
   ObjectMapper objectMapper() {
